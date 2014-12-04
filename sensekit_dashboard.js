@@ -1,46 +1,60 @@
-// list available devices (ideally listen for change in this list and update page if list changes)
-
-// connect to any device that is selected
-
-// once connected get data every 1s? and update widgets/graphs
-
-// disconnect
+// once connected get data every X-sec and update widgets/graphs
 
 
 /* on click of device
-    add active class
-    get dev id of active or clicked thing
-    try a connection
-        connectToDevice(devId)
-    check that connection was successful
-        getConnectedDevice()
-    if connected show data
-        getSensorData()
+
     if not connected show message
         device not online hit button to connect
 */
 
 
 $(document).ready(function() {
-  // variables
+  // constants
   const retryTimes = 15
-  const connectionRate = 1000
+  const connectionRetryRate = 1000
   const refreshDataRate = 1000
   const refreshDevicesRate = 1000
   const agentAddress = "https://agent.electricimp.com/Q55EE8z8iNZE"
 
+  // variables
   var devices = {}
   var connectionAttempts = retryTimes;
+  var dataRefreshLoop
 
-
-  // look for available devices every 1s
+  // look for available devices loop
   var sidebarRefresh = window.setInterval(function() { getDevices() }, refreshDevicesRate);
 
-  // listener on sidebar if clicked will attempt a connection
+  // sidebar listeners
   $(".nav-sidebar").on("click", "li", loadDashboard);
-
+  $("#disconnect").on("click", disconnectDevice);
 
   ////// Page Functions //////
+
+  //// Device Sidebar
+  function updateActiveDeviceList(activeId) {
+    for(device in devices) {
+      $(".devices ul").append("<li data-id='" + device + "'><a href='#'>Device Id: " + device + "  RSSI: " + devices[device] + "</a></li>")
+      if(activeId) {
+        $("li[data-id="+activeId+"]").addClass("active");
+      }
+    }
+  }
+
+  function clearActiveDeviceList() {
+    $(".devices ul").html("");
+  }
+
+  function checkSidebarActive() {
+    return ($(".sidebar .active").length > 0) ? $(".sidebar .active").data().id : "";
+  }
+
+  function disconnectDevice(e) {
+    e.preventDefault();
+    disconnectFromDevice();
+    window.clearInterval(dataRefreshLoop);
+  }
+
+  //// Dashboard
   function loadDashboard(e) {
     e.preventDefault();
     var selected = e.currentTarget;
@@ -56,55 +70,53 @@ $(document).ready(function() {
       connectionAttempts = retryTimes;
       console.log("connected to :");
       console.log(deviceId);
+      showDisconnectButton();
       getData();
     } else if (connectionAttempts > 0) {
       connectionAttempts--;
-      setTimeout(function() { getConnectedDevice() }, connectionRate)
+      setTimeout(function() { getConnectedDevice() }, connectionRetryRate)
     } else {
       connectionAttempts = retryTimes;
       showConnectionFailedMsg()
     }
   }
 
-  function updateActiveDeviceList(activeId) {
-    for(device in devices) {
-      $(".devices ul").append("<li data-id='" + device + "'><a href='#'>Device Id: " + device + "  RSSI: " + devices[device] + "</a></li>")
-      if(activeId) {
-        $("li[data-id="+activeId+"]").addClass("active");
-      }
-    }
+  function showConnectionFailedMsg() {
+    console.log("in connection failed");
+    console.log("press button on sensor!!");
+    showHitButtonMsg();
   }
 
-  function clearActiveDeviceList() {
-    $(".devices ul").html("");
-  }
+  function getData() {
+    console.log("in get data");
+    dataRefreshLoop = window.setInterval(function() {
+      getSensorData();
+    }, refreshDataRate);
+  };
 
+  function updateDashboard(data) {
+    console.log(data);
+  };
+
+  function showDisconnectButton() {
+    $("#disconnect").removeClass("hidden");
+  };
+
+  function hideDisconnectButton() {
+    $("#disconnect").addClass("hidden");
+  };
+
+  function showHitButtonMsg() {
+
+  };
+
+  //// Helpers
   function getCurrentTime() {
     return (new Date()).toLocaleTimeString()
   }
 
   function updateCurrentTime(timeDiv) {
     timeDiv.text("Devices Updated at " +getCurrentTime());
-  }
-
-  function checkSidebarActive() {
-    return ($(".sidebar .active").length > 0) ? $(".sidebar .active").data().id : "";
-  }
-
-  function getData() {
-    console.log("in get data");
-    var dataRefresh = window.setInterval(function() {
-      getSensorData();
-    }, refreshDataRate)
-  }
-
-  function showConnectionFailedMsg() {
-    console.log("in connection failed");
-    console.log("press button on sensor!!")
-  }
-
-  function updateDashboard(data) {
-    console.log(data)
   }
 
   ////// API Ajax requests //////
@@ -160,6 +172,7 @@ $(document).ready(function() {
       url : agentAddress + "/disconnect",
       success : function(response) {
         console.log(response);
+        hideDisconnectButton();
         //response should look like
         // OK
       }
