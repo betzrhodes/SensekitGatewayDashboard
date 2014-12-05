@@ -53,6 +53,9 @@ $(document).ready(function() {
   function loadDashboard(e) {
     e.preventDefault();
     var devId = e.currentTarget.dataset.id;
+    if ($(".devices .active").length > 0) {
+      disconnectFromDevice();
+    };
     updateSidebarStatus(devId);
     connectToDevice(devId);
   }
@@ -77,7 +80,6 @@ $(document).ready(function() {
 
   function getData() {
     if (!dataRefreshLoop) {
-      console.log("in getData make a refresh loop");
       dataRefreshLoop = window.setInterval(function() {getSensorData(); }, refreshDataRate);
     }
   };
@@ -168,7 +170,6 @@ $(document).ready(function() {
 
   //disconnect from a device
   function disconnectFromDevice() {
-    console.log("in disconnect")
     $.ajax({
       url : agentAddress + "/disconnect",
       success : function(response) {
