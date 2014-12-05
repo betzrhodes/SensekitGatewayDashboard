@@ -1,39 +1,32 @@
-// once connected get data every X-sec and update widgets/graphs
-
-
-/* on click of device
-
-    if not connected show message
-        device not online hit button to connect
-*/
-
-
 $(document).ready(function() {
   // constants
-  const retryTimes = 15
-  const connectionRetryRate = 1000
-  const refreshDataRate = 1000
-  const refreshDevicesRate = 1000
-  const agentAddress = "https://agent.electricimp.com/Q55EE8z8iNZE"
+  const refreshDataRate = 1000;
+  const searchRate = 1000;
+  const agentAddress = "https://agent.electricimp.com/Q55EE8z8iNZE";
 
   // variables
-  var devices = {}
-  var connectionAttempts = retryTimes;
-  var dataRefreshLoop
-
-  // look for available devices loop
-  var sidebarRefresh = window.setInterval(function() { getDevices() }, refreshDevicesRate);
+  var devices = {};
+  var dataRefreshLoop;
+  var connectedDevicesLoop;
+  var sidebarRefresh;
 
   // sidebar listeners
   $(".nav-sidebar").on("click", "li", loadDashboard);
   $("#disconnect").on("click", disconnectDevice);
+
+  // look for available devices
+  pollForActiveDevices();
+
+  //look for connected devices
+  pollForConnectedDevices();
+
 
   ////// Page Functions //////
 
   //// Device Sidebar
   function updateActiveDeviceList(activeId) {
     for(device in devices) {
-      $(".devices ul").append("<li data-id='" + device + "'><a href='#'>Device Id: " + device + "  RSSI: " + devices[device] + "</a></li>")
+      $(".devices ul").append("<li data-id='" + device + "'><a href='#'>Device Id: " + device + "  RSSI: " + devices[device] + "</a></li>");
       if(activeId) {
         $("li[data-id="+activeId+"]").addClass("active");
       }
@@ -51,47 +44,42 @@ $(document).ready(function() {
   function disconnectDevice(e) {
     e.preventDefault();
     disconnectFromDevice();
-    window.clearInterval(dataRefreshLoop);
+    clearDataRefreshLoop();
+    pollForConnectedDevices();
+    $(".sidebar .active").removeClass("active");
   }
 
   //// Dashboard
   function loadDashboard(e) {
     e.preventDefault();
-    var selected = e.currentTarget;
-    var devId = selected.dataset.id;
-
-    $(".active").removeClass("active");
-    selected.classList.add("active");
+    var devId = e.currentTarget.dataset.id;
+    updateSidebarStatus(devId);
     connectToDevice(devId);
   }
 
-  function isConnected(deviceId) {
+  function checkConnection(deviceId) {
     if (deviceId.search(/null/) === -1) {
-      connectionAttempts = retryTimes;
       console.log("connected to :");
       console.log(deviceId);
+      updateSidebarStatus(deviceId);
       showDisconnectButton();
+      window.clearInterval(connectedDevicesLoop);
       getData();
-    } else if (connectionAttempts > 0) {
-      connectionAttempts--;
-      setTimeout(function() { getConnectedDevice() }, connectionRetryRate)
     } else {
-      connectionAttempts = retryTimes;
-      showConnectionFailedMsg()
+      showPressSensorButtonMsg();
     }
   }
 
-  function showConnectionFailedMsg() {
-    console.log("in connection failed");
+  function showPressSensorButtonMsg() {
     console.log("press button on sensor!!");
-    showHitButtonMsg();
+    //add condition to only reset page if in connected state
   }
 
   function getData() {
-    console.log("in get data");
-    dataRefreshLoop = window.setInterval(function() {
-      getSensorData();
-    }, refreshDataRate);
+    if (!dataRefreshLoop) {
+      console.log("in getData make a refresh loop");
+      dataRefreshLoop = window.setInterval(function() {getSensorData(); }, refreshDataRate);
+    }
   };
 
   function updateDashboard(data) {
@@ -106,8 +94,9 @@ $(document).ready(function() {
     $("#disconnect").addClass("hidden");
   };
 
-  function showHitButtonMsg() {
-
+  function updateSidebarStatus(deviceId) {
+    $(".active").removeClass("active");
+    $("[data-id=" + deviceId + "]").addClass("active");
   };
 
   //// Helpers
@@ -117,6 +106,19 @@ $(document).ready(function() {
 
   function updateCurrentTime(timeDiv) {
     timeDiv.text("Devices Updated at " +getCurrentTime());
+  }
+
+  function pollForConnectedDevices() {
+    connectedDevicesLoop = window.setInterval(function() { getConnectedDevice(); }, searchRate);
+  }
+
+  function pollForActiveDevices() {
+    sidebarRefresh = window.setInterval(function() { getDevices() }, searchRate);
+  }
+
+  function clearDataRefreshLoop() {
+    window.clearInterval(dataRefreshLoop);
+    dataRefreshLoop = undefined;
   }
 
   ////// API Ajax requests //////
@@ -140,14 +142,12 @@ $(document).ready(function() {
   }
 
   //request connected device
+  // returns deviceId or "(null :(nil))"
   function getConnectedDevice() {
     $.ajax({
       url : agentAddress + "/getconnecteddev",
       success : function(response) {
-        isConnected(response)
-        //response should look like
-        // "207377654321" if device is there
-        // "(null :(nil))" if not there
+        checkConnection(response)
       }
     });
   }
@@ -161,20 +161,19 @@ $(document).ready(function() {
       data: devId,
       success : function(response) {
         console.log(response);
-        getConnectedDevice();
+        window.setTimeout(function() { getConnectedDevice(); }, 500);
       }
     });
   }
 
   //disconnect from a device
   function disconnectFromDevice() {
+    console.log("in disconnect")
     $.ajax({
       url : agentAddress + "/disconnect",
       success : function(response) {
         console.log(response);
         hideDisconnectButton();
-        //response should look like
-        // OK
       }
     });
   }
