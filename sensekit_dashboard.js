@@ -1,14 +1,12 @@
 $(document).ready(function() {
   // constants
   const refreshDataRate = 1000;
-  const searchRate = 1000;
+  const searchRate = 500;
   const agentAddress = "https://agent.electricimp.com/Q55EE8z8iNZE";
 
   // variables
   var devices = {};
-  var dataRefreshLoop;
-  var connectedDevicesLoop;
-  var sidebarRefresh;
+  var dataRefreshLoop, connectedDevicesLoop, sidebarRefresh;
 
   // sidebar listeners
   $(".nav-sidebar").on("click", "li", loadDashboard);
@@ -42,21 +40,43 @@ $(document).ready(function() {
   }
 
   function disconnectDevice(e) {
-    e.preventDefault();
-    disconnectFromDevice();
-    clearDataRefreshLoop();
-    pollForConnectedDevices();
     $(".sidebar .active").removeClass("active");
+    disconnectFromDevice();
+    hideDisconnectButton();
+    clearDataRefreshLoop();
+    $(".readings").addClass("hidden");
+    setTimeout(function() { pollForConnectedDevices() }, 1000);
   }
+
+  function showDisconnectButton() {
+    console.log("in show disconnect")
+    $("#disconnect").removeClass("hidden");
+  };
+
+  function hideDisconnectButton() {
+    $("#disconnect").addClass("hidden");
+  };
+
+  function updateSidebarStatus(deviceId) {
+    $(".sidebar .active").removeClass("active");
+    if ($("[data-id=" + deviceId + "]").text()) {
+      $("[data-id=" + deviceId + "]").addClass("active");
+    } else {
+      setTimeout(function () {
+        $("[data-id=" + deviceId + "]").addClass("active");
+      }, 600);
+    }
+  };
 
   //// Dashboard
   function loadDashboard(e) {
     e.preventDefault();
+    clearPollForConnectedDevices();
     var devId = e.currentTarget.dataset.id;
-    if ($(".devices .active").length > 0) {
+    if (checkSidebarActive()) {
       disconnectFromDevice();
+      hideDisconnectButton();
     };
-    updateSidebarStatus(devId);
     connectToDevice(devId);
   }
 
@@ -64,18 +84,32 @@ $(document).ready(function() {
     if (deviceId.search(/null/) === -1) {
       console.log("connected to :");
       console.log(deviceId);
+      if (deviceId === "") {
+        console.log("reset the imp!!!");
+        clearPollForConnectedDevices();
+        clearPollForActiveDevices();
+        console.log("refresh page when imp back online");
+      }
       updateSidebarStatus(deviceId);
       showDisconnectButton();
-      window.clearInterval(connectedDevicesLoop);
+      clearPollForConnectedDevices();
       getData();
+      hidePressSensorButtonMsg();
     } else {
       showPressSensorButtonMsg();
     }
   }
 
   function showPressSensorButtonMsg() {
-    console.log("press button on sensor!!");
-    //add condition to only reset page if in connected state
+    $(".wake-msg").removeClass("hidden");
+    if ($(".wake-msg").text() != "Hit button to wake up a device!") {
+      console.log("press button on sensor!!");
+      $(".wake-msg").text("Hit button to wake up a device!");
+    }
+  }
+
+  function hidePressSensorButtonMsg() {
+    $(".wake-msg").text("").addClass("hidden");
   }
 
   function getData() {
@@ -86,20 +120,12 @@ $(document).ready(function() {
 
   function updateDashboard(data) {
     console.log(data);
+    $(".readings").removeClass("hidden");
+    for (k in data) {
+      $("." + k + " .reading").text(data[k]);
+    }
   };
 
-  function showDisconnectButton() {
-    $("#disconnect").removeClass("hidden");
-  };
-
-  function hideDisconnectButton() {
-    $("#disconnect").addClass("hidden");
-  };
-
-  function updateSidebarStatus(deviceId) {
-    $(".active").removeClass("active");
-    $("[data-id=" + deviceId + "]").addClass("active");
-  };
 
   //// Helpers
   function getCurrentTime() {
@@ -121,6 +147,16 @@ $(document).ready(function() {
   function clearDataRefreshLoop() {
     window.clearInterval(dataRefreshLoop);
     dataRefreshLoop = undefined;
+  }
+
+  function clearPollForConnectedDevices() {
+    window.clearInterval(connectedDevicesLoop);
+    connectedDevicesLoop = undefined;
+  }
+
+  function clearPollForActiveDevices() {
+    window.clearInterval(sidebarRefresh);
+    connectedDevicesLoop = undefined;
   }
 
   ////// API Ajax requests //////
@@ -163,7 +199,7 @@ $(document).ready(function() {
       data: devId,
       success : function(response) {
         console.log(response);
-        window.setTimeout(function() { getConnectedDevice(); }, 500);
+        setTimeout(function() { getConnectedDevice(); }, 600);
       }
     });
   }
@@ -174,7 +210,6 @@ $(document).ready(function() {
       url : agentAddress + "/disconnect",
       success : function(response) {
         console.log(response);
-        hideDisconnectButton();
       }
     });
   }
@@ -186,6 +221,11 @@ $(document).ready(function() {
       dataType : "json",
       success : function(response) {
         updateDashboard(response);
+
+        //will eventually disconnect when device not showing up as active
+        if ($(".active").text() === "") {
+          disconnectDevice();
+        }
         //response should look like
         // { "press": 1002.2, "humid": 22.4, "gyro": [ -104, 476, -462 ], "batt": 21, "temp": 21.6, "accel": [ [ 1, 0, 86 ], [ 1, -1, 87 ], [ 1, -1, 86 ], [ 2, -1, 86 ], [ 2, -1, 86 ], [ 1, 0, 86 ], [ 0, -1, 87 ], [ 2, -1, 86 ], [ 1, -1, 86 ], [ 2, -1, 86 ] ], "mag": [ -554, 903, -2347 ] }
       }

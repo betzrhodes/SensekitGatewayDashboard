@@ -56,9 +56,9 @@
         <!-- Dashboard -->
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">Dashboard</h1>
-          <h3>Hit button to wake up a device!</h3>
           <div class="row placeholders">
-            <div class="col-xs-6 col-sm-3 placeholder">
+            <h3 class="wake-msg">Hit button to wake up a device!</h3>
+ <!--            <div class="col-xs-6 col-sm-3 placeholder">
               <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
               <h4>Label</h4>
               <span class="text-muted">Something else</span>
@@ -77,70 +77,47 @@
               <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
               <h4>Label</h4>
               <span class="text-muted">Something else</span>
-            </div>
+            </div> -->
           </div>
 
-          <h2 class="sub-header">Section title</h2>
+          <div class="readings hidden">
+          <h2 class="sub-header">Sensor Data</h2>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
                   <th>Sensor</th>
                   <th>Reading</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class = "press">
                   <td>Pressure</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
+                  <td class = "reading"></td>
                 </tr>
                 <tr class = "humid">
                   <td>Humidity</td>
-                  <td>amet</td>
-                  <td>consectetur</td>
-                  <td>adipiscing</td>
-                  <td>elit</td>
+                  <td class = "reading"></td>
                 </tr>
                 <tr class = "temp">
                   <td>Temperature</td>
-                  <td>Integer</td>
-                  <td>nec</td>
-                  <td>odio</td>
-                  <td>Praesent</td>
+                  <td class = "reading"></td>
                 </tr>
                 <tr class = "gyro">
                   <td>Gyro</td>
-                  <td>libero</td>
-                  <td>Sed</td>
-                  <td>cursus</td>
-                  <td>ante</td>
+                  <td class = "reading"></td>
                 </tr>
                 <tr class = "mag">
                   <td>Magnitometer</td>
-                  <td>dapibus</td>
-                  <td>diam</td>
-                  <td>Sed</td>
-                  <td>nisi</td>
+                  <td class = "reading"></td>
                 </tr>
                 <tr class = "accel">
                   <td>Accelerometer</td>
-                  <td>Nulla</td>
-                  <td>quis</td>
-                  <td>sem</td>
-                  <td>at</td>
+                  <td class = "reading"></td>
                 </tr>
                 <tr class = "batt">
                   <td>Battery</td>
-                  <td>nibh</td>
-                  <td>elementum</td>
-                  <td>imperdiet</td>
-                  <td>Duis</td>
+                  <td class = "reading"></td>
                 </tr>
               </tbody>
             </table>
