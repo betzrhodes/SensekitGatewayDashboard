@@ -6,6 +6,7 @@ $(document).ready(function() {
 
   // variables
   var devices = {};
+  var d = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
   var dataRefreshLoop, connectedDevicesLoop, sidebarRefresh;
 
   // sidebar listeners
@@ -15,9 +16,50 @@ $(document).ready(function() {
   // look for available devices
   pollForActiveDevices();
 
-  //look for connected devices
+  // look for connected devices
   pollForConnectedDevices();
 
+  // chart options
+  var graphOptions = {
+    xaxis: {
+        color: "#CCCCCC",
+        mode: "time",
+        timeformat: "%I:%M:%S %P",
+        timezone: "browser"
+    },
+    series: {
+        lines: {
+            shadowSize: 0,
+            show: true,
+            lineWidth: 1.5
+        }
+    },
+    grid: {
+        backgroundColor: { colors: ["#7A7A7A", "#2B2B2B"] },
+        // hoverable: true,
+        // autoHighlight: true,
+    },
+    legend: {
+      show: true,
+      position: "nw",
+      backgroundColor: "#7A7A7A",
+      backgroundOpacity: 0.2,
+      margin: 10
+    },
+  };
+
+  // $("<div id='tooltip'></div>").appendTo("body");
+  // $("#chart_div").bind("plothover", function (event, pos, item) {
+  //   if (item) {
+  //       var x = (new Date(item.datapoint[0])).toLocaleTimeString()
+  //       var y = item.datapoint[1].toFixed(1);
+  //       $("#tooltip").html("<p>" + item.series.label + "</p>" + x + "<br><span>" + y + "°F</span>")
+  //           .css({top: item.pageY-50, left: item.pageX+5})
+  //           .fadeIn(100);
+  //   } else {
+  //       $("#tooltip").hide();
+  //   }
+  // });
 
   ////// Page Functions //////
 
@@ -124,6 +166,20 @@ $(document).ready(function() {
     for (k in data) {
       $("." + k + " .reading").text(data[k]);
     }
+    graphAccData(data.accel);
+  };
+
+  function graphAccData(accelData) {
+    var startTime = Date.now() - 1000
+    for (var i = 0; i < accelData.length; i++) {
+      for (var j = 0; j < d.length; j++) {
+        d[j].data.push([startTime, accelData[i][j]]);
+      }
+      startTime += 100;
+    }
+    var plot = $.plot("#chart_div", d, graphOptions);
+    plot.setupGrid();
+    plot.draw();
   };
 
 
