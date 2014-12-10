@@ -8,6 +8,7 @@ $(document).ready(function() {
   var devices = {};
   var accelGraphData = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
   var dataRefreshLoop, connectedDevicesLoop, sidebarRefresh;
+  var disconnectCounter = 0;
 
   // sidebar listeners
   $(".nav-sidebar").on("click", "li", loadDashboard);
@@ -278,11 +279,20 @@ $(document).ready(function() {
       url : agentAddress + "/getupdate",
       dataType : "json",
       success : function(response) {
-        updateDashboard(response);
+        if(response.humid === null && response.temp === null && response.press === null && response.batt === null && response.mag.length === 0 && response.gyro.length === 0 && response.accel.length === 0) {
+          console.log("null data")
+          if (disconnectCounter < 4) {
+            disconnectCounter++;
+          } else {
+            disconnectCounter = 0;
+            disconnectDevice();
+          }
+        } else {
+          updateDashboard(response);
+        }
         //response should look like
         // { "press": 1002.2, "humid": 22.4, "gyro": [ -104, 476, -462 ], "batt": 21, "temp": 21.6, "accel": [ [ 1, 0, 86 ], [ 1, -1, 87 ], [ 1, -1, 86 ], [ 2, -1, 86 ], [ 2, -1, 86 ], [ 1, 0, 86 ], [ 0, -1, 87 ], [ 2, -1, 86 ], [ 1, -1, 86 ], [ 2, -1, 86 ] ], "mag": [ -554, 903, -2347 ] }
       }
     });
   }
-
 })
