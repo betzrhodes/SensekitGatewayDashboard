@@ -6,7 +6,7 @@ $(document).ready(function() {
 
   // variables
   var devices = {};
-  var d = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
+  var accelGraphData = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
   var dataRefreshLoop, connectedDevicesLoop, sidebarRefresh;
 
   // sidebar listeners
@@ -86,8 +86,9 @@ $(document).ready(function() {
     disconnectFromDevice();
     hideDisconnectButton();
     clearDataRefreshLoop();
+    clearAccGraph();
     $(".readings").addClass("hidden");
-    setTimeout(function() { pollForConnectedDevices() }, 1000);
+    setTimeout(function() { pollForConnectedDevices() }, 5000);
   }
 
   function showDisconnectButton() {
@@ -118,23 +119,19 @@ $(document).ready(function() {
     if (checkSidebarActive()) {
       disconnectFromDevice();
       hideDisconnectButton();
+      clearDataRefreshLoop();
+      clearAccGraph();
     };
     connectToDevice(devId);
   }
 
   function checkConnection(deviceId) {
-    if (deviceId.search(/null/) === -1) {
+    if (deviceId != "") {
       console.log("connected to :");
       console.log(deviceId);
-      if (deviceId === "") {
-        console.log("reset the imp!!!");
-        clearPollForConnectedDevices();
-        clearPollForActiveDevices();
-        console.log("refresh page when imp back online");
-      }
       updateSidebarStatus(deviceId);
       showDisconnectButton();
-      clearPollForConnectedDevices();
+      clearPollForConnectedDevices(); //needed if hit this route via connected device? loop
       getData();
       hidePressSensorButtonMsg();
     } else {
@@ -172,15 +169,20 @@ $(document).ready(function() {
   function graphAccData(accelData) {
     var startTime = Date.now() - 1000
     for (var i = 0; i < accelData.length; i++) {
-      for (var j = 0; j < d.length; j++) {
-        d[j].data.push([startTime, accelData[i][j]]);
+      for (var j = 0; j < accelGraphData.length; j++) {
+        accelGraphData[j].data.push([startTime, accelData[i][j]]);
       }
       startTime += 100;
     }
-    var plot = $.plot("#chart_div", d, graphOptions);
+    var plot = $.plot("#chart_div", accelGraphData, graphOptions);
     plot.setupGrid();
     plot.draw();
   };
+
+  function clearAccGraph() {
+    $("#chart_div").html("");
+    accelGraphData = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
+  }
 
 
   //// Helpers
@@ -254,7 +256,6 @@ $(document).ready(function() {
       type: "post",
       data: devId,
       success : function(response) {
-        console.log(response);
         setTimeout(function() { getConnectedDevice(); }, 600);
       }
     });
@@ -278,10 +279,6 @@ $(document).ready(function() {
       success : function(response) {
         updateDashboard(response);
 
-        //will eventually disconnect when device not showing up as active
-        if ($(".active").text() === "") {
-          disconnectDevice();
-        }
         //response should look like
         // { "press": 1002.2, "humid": 22.4, "gyro": [ -104, 476, -462 ], "batt": 21, "temp": 21.6, "accel": [ [ 1, 0, 86 ], [ 1, -1, 87 ], [ 1, -1, 86 ], [ 2, -1, 86 ], [ 2, -1, 86 ], [ 1, 0, 86 ], [ 0, -1, 87 ], [ 2, -1, 86 ], [ 1, -1, 86 ], [ 2, -1, 86 ] ], "mag": [ -554, 903, -2347 ] }
       }
