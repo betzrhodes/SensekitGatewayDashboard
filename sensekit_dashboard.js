@@ -77,7 +77,7 @@ $(document).ready(function() {
     $(".devices ul").html("");
   }
 
-  function checkSidebarActive() {
+  function getActiveSidebarId() {
     return ($(".sidebar .active").length > 0) ? $(".sidebar .active").data().id : "";
   }
 
@@ -92,7 +92,6 @@ $(document).ready(function() {
   }
 
   function showDisconnectButton() {
-    console.log("in show disconnect")
     $("#disconnect").removeClass("hidden");
   };
 
@@ -103,8 +102,10 @@ $(document).ready(function() {
   function updateSidebarStatus(deviceId) {
     $(".sidebar .active").removeClass("active");
     if ($("[data-id=" + deviceId + "]").text()) {
+      console.log("in if")
       $("[data-id=" + deviceId + "]").addClass("active");
     } else {
+      console.log("in else")
       setTimeout(function () {
         $("[data-id=" + deviceId + "]").addClass("active");
       }, 600);
@@ -116,9 +117,9 @@ $(document).ready(function() {
     e.preventDefault();
     clearPollForConnectedDevices();
     var devId = e.currentTarget.dataset.id;
-    if (checkSidebarActive()) {
-      disconnectFromDevice();
-      hideDisconnectButton();
+    if (getActiveSidebarId()) {
+      // disconnectFromDevice();
+      // hideDisconnectButton();
       clearDataRefreshLoop();
       clearAccGraph();
     };
@@ -131,7 +132,7 @@ $(document).ready(function() {
       console.log(deviceId);
       updateSidebarStatus(deviceId);
       showDisconnectButton();
-      clearPollForConnectedDevices(); //needed if hit this route via connected device? loop
+      clearPollForConnectedDevices();
       getData();
       hidePressSensorButtonMsg();
     } else {
@@ -159,6 +160,7 @@ $(document).ready(function() {
 
   function updateDashboard(data) {
     console.log(data);
+    console.log($(".active").text());
     $(".readings").removeClass("hidden");
     for (k in data) {
       $("." + k + " .reading").text(data[k]);
@@ -226,8 +228,7 @@ $(document).ready(function() {
       dataType : "json",
       success : function(response) {
         if (JSON.stringify(response) != JSON.stringify(devices)) {
-          console.log("updating list");
-          var activeId = checkSidebarActive();
+          var activeId = getActiveSidebarId();
           devices = response;
           clearActiveDeviceList();
           updateActiveDeviceList(activeId);
@@ -278,7 +279,6 @@ $(document).ready(function() {
       dataType : "json",
       success : function(response) {
         updateDashboard(response);
-
         //response should look like
         // { "press": 1002.2, "humid": 22.4, "gyro": [ -104, 476, -462 ], "batt": 21, "temp": 21.6, "accel": [ [ 1, 0, 86 ], [ 1, -1, 87 ], [ 1, -1, 86 ], [ 2, -1, 86 ], [ 2, -1, 86 ], [ 1, 0, 86 ], [ 0, -1, 87 ], [ 2, -1, 86 ], [ 1, -1, 86 ], [ 2, -1, 86 ] ], "mag": [ -554, 903, -2347 ] }
       }
