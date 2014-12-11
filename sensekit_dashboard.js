@@ -103,10 +103,8 @@ $(document).ready(function() {
   function updateSidebarStatus(deviceId) {
     $(".sidebar .active").removeClass("active");
     if ($("[data-id=" + deviceId + "]").text()) {
-      console.log("in if")
       $("[data-id=" + deviceId + "]").addClass("active");
     } else {
-      console.log("in else")
       setTimeout(function () {
         $("[data-id=" + deviceId + "]").addClass("active");
       }, 600);
@@ -119,8 +117,6 @@ $(document).ready(function() {
     clearPollForConnectedDevices();
     var devId = e.currentTarget.dataset.id;
     if (getActiveSidebarId()) {
-      // disconnectFromDevice();
-      // hideDisconnectButton();
       clearDataRefreshLoop();
       clearAccGraph();
     };
@@ -161,7 +157,6 @@ $(document).ready(function() {
 
   function updateDashboard(data) {
     console.log(data);
-    console.log($(".active").text());
     $(".readings").removeClass("hidden");
     for (k in data) {
       $("." + k + " .reading").text(data[k]);
@@ -194,7 +189,7 @@ $(document).ready(function() {
   }
 
   function updateCurrentTime(timeDiv) {
-    timeDiv.text("Devices Updated at " +getCurrentTime());
+    timeDiv.text("Devices Updated at " + getCurrentTime());
   }
 
   function pollForConnectedDevices() {
