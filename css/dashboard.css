@@ -128,14 +128,12 @@ a:hover, a:focus {
 /*.widgets {
   margin-bottom: 30px;
 }
-
 .widgets h2 {
   margin: 5%;
   font-size: 4.5em;
   color: #E1E8DF;
   text-align: center;
 }
-
 .widget {
   background-color: #383838;
   margin: 1.5%;
@@ -177,11 +175,9 @@ a:hover, a:focus {
   text-align: center;
   margin-top: 5%;
 }
-
 .message-box h3 {
   font-size: 3em;
 }
-
 .message-box h4 {
   font-size: 1.5em;
 }*/
@@ -195,7 +191,6 @@ a:hover, a:focus {
   margin: 0;
   padding: 5% 0;
 }
-
 button, input, optgroup, select, textarea {
   margin: 0 0 10% 0;
   width: 100%;
@@ -207,26 +202,22 @@ button, input, optgroup, select, textarea {
   width: 70%;
   text-align: left;
 }
-
 .form-inputs label {
   font-size: 1.2em;
   color: #B7BFB2;
   display: block;
   margin: 0;
 }
-
 .form-inputs input {
   border-radius: 6px;
   background-color: #383838;
   border-color: #383838;
 }
-
 .form-inputs select {
   border-radius: 6px;
   background-color: #383838;
   border-color: #383838;
 }
-
 .form-inputs button {
   color: #B7BFB2;
   background-color: #206118;
@@ -235,7 +226,6 @@ button, input, optgroup, select, textarea {
   padding: 1%;
   font-size: 1.1em;
 }
-
 .form-inputs button:hover, .form-inputs button:active, button#addTempBug.btn-.btn-primary {
   color: #B7BFB2;
   background-color: #25731C;
@@ -273,4 +263,8 @@ button, input, optgroup, select, textarea {
 #tooltip p {
   margin: 0;
   color: #CDD6CB;
+}
+
+.sidebar h5 {
+  text-align: center;
 }
