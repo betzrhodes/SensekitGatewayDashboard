@@ -139,7 +139,7 @@ $(document).ready(function() {
 
   function showPressSensorButtonMsg() {
     $(".wake-msg").removeClass("hidden");
-    if ($(".wake-msg").text() != "Hit button to wake up a device!") {
+    if ($(".wake-msg").text() != "Hit button on sensor to wake it up!") {
       console.log("press button on sensor!!");
       $(".wake-msg").text("Hit button to wake up a device!");
     }
@@ -228,6 +228,11 @@ $(document).ready(function() {
           devices = response;
           clearActiveDeviceList();
           updateActiveDeviceList(activeId);
+          if (Object.keys(devices).length > 0) {
+            $(".sidebar h5").removeClass("hidden");
+          } else {
+            $(".sidebar h5").addClass("hidden");
+          }
         }
         updateCurrentTime($(".devices .time"));
       }
@@ -235,7 +240,7 @@ $(document).ready(function() {
   }
 
   //request connected device
-  // returns deviceId or "(null :(nil))"
+  // returns deviceId or ""
   function getConnectedDevice() {
     $.ajax({
       url : agentAddress + "/getconnecteddev",

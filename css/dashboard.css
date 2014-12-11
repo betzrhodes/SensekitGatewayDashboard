@@ -274,3 +274,7 @@ button, input, optgroup, select, textarea {
   margin: 0;
   color: #CDD6CB;
 }
+
+.sidebar h5 {
+  text-align: center;
+}
