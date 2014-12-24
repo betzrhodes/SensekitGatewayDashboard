@@ -68,6 +68,12 @@ a:hover, a:focus {
   color: #DBDBDB;
 }
 
+#navbar .navbar-brand {
+  width: 80%;
+  text-align: center;
+  margin: 0 auto;
+}
+
 /*
  * Sidebar
  */
