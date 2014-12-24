@@ -1,26 +1,22 @@
 $(document).ready(function() {
   // constants
   const refreshDataRate = 1000;
-  const searchRate = 500;
+  const sidebarRefreshRate = 5000;
   const agentAddress = "https://agent.electricimp.com/Q55EE8z8iNZE";
+  const tagRef = new Firebase ("https://bletracker.firebaseio.com/tags")
 
   // variables
-  var devices = {};
-  var accelGraphData = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
-  var dataRefreshLoop, connectedDevicesLoop, sidebarRefresh;
+  var tagNamesById = {};
+  var demoTags = [];
+  var availableTags = {};
+  var sidebarRefresh, dataRefreshLoop;
+  var defaultDashMsg = "Click on a Tag to see Data!"
   var disconnectCounter = 0;
+  var connectionCounter = 0;
+  var connected = false;
 
-  // sidebar listeners
-  $(".nav-sidebar").on("click", "li", loadDashboard);
-  $("#disconnect").on("click", disconnectDevice);
-
-  // look for available devices
-  pollForActiveDevices();
-
-  // look for connected devices
-  pollForConnectedDevices();
-
-  // chart options
+  // chart settings
+  var accelGraphData = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
   var graphOptions = {
     xaxis: {
         color: "#CCCCCC",
@@ -49,47 +45,114 @@ $(document).ready(function() {
     },
   };
 
-  // $("<div id='tooltip'></div>").appendTo("body");
-  // $("#chart_div").bind("plothover", function (event, pos, item) {
-  //   if (item) {
-  //       var x = (new Date(item.datapoint[0])).toLocaleTimeString()
-  //       var y = item.datapoint[1].toFixed(1);
-  //       $("#tooltip").html("<p>" + item.series.label + "</p>" + x + "<br><span>" + y + "°F</span>")
-  //           .css({top: item.pageY-50, left: item.pageX+5})
-  //           .fadeIn(100);
-  //   } else {
-  //       $("#tooltip").hide();
-  //   }
-  // });
+  // listeners
+  $(".nav-sidebar").on("click", "li", connect);
+  $("#disconnect").on("click", disconnect);
+
+  // Runtime(on page load)
+  getTagNames(loadPage);
+  checkConnectionStatus();
+
 
   ////// Page Functions //////
+  function checkConnectionStatus() {
+    getConnectedDevice();
+  }
 
-  //// Device Sidebar
-  function updateActiveDeviceList(activeId) {
-    for(device in devices) {
-      $(".devices ul").append("<li data-id='" + device + "'><a href='#'>Device Id: " + device + "  RSSI: " + devices[device] + "</a></li>");
-      if(activeId) {
-        $("li[data-id="+activeId+"]").addClass("active");
+  function loadPage() {
+    getDevices(updateSidebar);
+    //show instructions or connected tag data
+
+    pollForActiveDevices();
+  }
+
+  function updateSidebar() {
+    updateDemoTagSidebar()
+    updateAssetTagSidebar()
+    updateTimestamp()
+  }
+
+  function updateDemoTagSidebar() {
+    for (var i in demoTags) {
+      var id = demoTags[i];
+      var text = "Tag: " + tagNamesById[id] + " RSSI: "
+      var listItem = $("[data-id="+id+"] a");
+
+      if ( id in availableTags ) {
+        updateSidebarListItem(listItem, text + availableTags[id].rssi);
+      } else {
+        updateSidebarListItem(listItem, text + "N/A");
       }
     }
   }
 
-  function clearActiveDeviceList() {
-    $(".devices ul").html("");
+  function updateAssetTagSidebar() {
+    clearAssetTagSidebar();
+    var assetSidebar = $(".asset-tags")
+    for (tagId in availableTags) {
+      if (!availableTags[tagId].demoTag && availableTags[tagId].rssi > -85) {
+        var text = "Tag: " + availableTags[tagId].name + " RSSI: " + availableTags[tagId].rssi;
+        addSidebarListItem(assetSidebar, tagId, text);
+      }
+    }
   }
 
-  function getActiveSidebarId() {
-    return ($(".sidebar .active").length > 0) ? $(".sidebar .active").data().id : "";
+  function connect(e) {
+    e.preventDefault();
+    var tagId = e.currentTarget.dataset.id;
+    // if (getActiveSidebarId()) {
+    //   clearDataRefreshLoop();
+    //   clearAccGraph();
+    // };
+    connectToDevice(tagId);
   }
 
-  function disconnectDevice(e) {
+  function loadDashboard(tagId) {
+    console.log("connected to :" + tagId);
+    showDisconnectButton();
+    getData();
+    hideDashboardMessage();
+  }
+
+  function disconnect(e) {
+    e.preventDefault();
+    disconnectFromDevice(); //API disconnect
+    disconnectReset(defaultDashMsg);
+  };
+
+  function disconnectReset(message) {
     $(".sidebar .active").removeClass("active");
-    disconnectFromDevice();
     hideDisconnectButton();
     clearDataRefreshLoop();
     clearAccGraph();
-    $(".readings").addClass("hidden");
-    setTimeout(function() { pollForConnectedDevices() }, 5000);
+    hideDashboard();
+    showDashboardMessage(message);
+  }
+
+  function getCurrentTime() {
+    return (new Date()).toLocaleTimeString();
+  }
+
+
+  //// View Functions ////
+  function clearDemoTagSidebar() {
+    $(".demo-tags").html("");
+  }
+
+  function clearAssetTagSidebar() {
+    $(".asset-tags").html("");
+  }
+
+  function addSidebarListItem(list, id, listText) {
+    list.append("<li data-id='" + id + "'><a href='#'>" + listText + "</a></li>")
+  }
+
+  function updateSidebarListItem(listItem, listText) {
+    listItem.text(listText);
+  }
+
+  function updateTimestamp() {
+    $(".time").text("Devices Updated at " + getCurrentTime());
   }
 
   function showDisconnectButton() {
@@ -100,61 +163,6 @@ $(document).ready(function() {
     $("#disconnect").addClass("hidden");
   };
 
-  function updateSidebarStatus(deviceId) {
-    $(".sidebar .active").removeClass("active");
-    if ($("[data-id=" + deviceId + "]").text()) {
-      $("[data-id=" + deviceId + "]").addClass("active");
-    } else {
-      setTimeout(function () {
-        $("[data-id=" + deviceId + "]").addClass("active");
-      }, 600);
-    }
-  };
-
-  //// Dashboard
-  function loadDashboard(e) {
-    e.preventDefault();
-    clearPollForConnectedDevices();
-    var devId = e.currentTarget.dataset.id;
-    if (getActiveSidebarId()) {
-      clearDataRefreshLoop();
-      clearAccGraph();
-    };
-    connectToDevice(devId);
-  }
-
-  function checkConnection(deviceId) {
-    if (deviceId != "") {
-      console.log("connected to :");
-      console.log(deviceId);
-      updateSidebarStatus(deviceId);
-      showDisconnectButton();
-      clearPollForConnectedDevices();
-      getData();
-      hidePressSensorButtonMsg();
-    } else {
-      showPressSensorButtonMsg();
-    }
-  }
-
-  function showPressSensorButtonMsg() {
-    $(".wake-msg").removeClass("hidden");
-    if ($(".wake-msg").text() != "Hit button on sensor to wake it up!") {
-      console.log("press button on sensor!!");
-      $(".wake-msg").text("Hit button to wake up a device!");
-    }
-  }
-
-  function hidePressSensorButtonMsg() {
-    $(".wake-msg").text("").addClass("hidden");
-  }
-
-  function getData() {
-    if (!dataRefreshLoop) {
-      dataRefreshLoop = window.setInterval(function() {getSensorData(); }, refreshDataRate);
-    }
-  };
-
   function updateDashboard(data) {
     console.log(data);
     $(".readings").removeClass("hidden");
@@ -163,6 +171,10 @@ $(document).ready(function() {
     }
     graphAccData(data.accel);
   };
+
+  function hideDashboard() {
+    $(".readings").addClass("hidden");
+  }
 
   function graphAccData(accelData) {
     var startTime = Date.now() - 1000
@@ -182,83 +194,143 @@ $(document).ready(function() {
     accelGraphData = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
   }
 
-
-  //// Helpers
-  function getCurrentTime() {
-    return (new Date()).toLocaleTimeString()
+  function showDashboardMessage(message) {
+    if (message === "trying to connect..." || message ===defaultDashMsg) {
+      $(".dash-msg").text(message);
+    } else {
+      $(".dash-msg").text(message);
+      setTimeout(function() {
+        $(".dash-msg").text(defaultDashMsg);
+      }, 3000);
+    }
+    $(".dash-msg").removeClass("hidden");
   }
 
-  function updateCurrentTime(timeDiv) {
-    timeDiv.text("Devices Updated at " + getCurrentTime());
+  function hideDashboardMessage() {
+    $(".dash-msg").addClass("hidden");
+    $(".dash-msg").text(defaultDashMsg);
   }
 
-  function pollForConnectedDevices() {
-    connectedDevicesLoop = window.setInterval(function() { getConnectedDevice(); }, searchRate);
-  }
 
+  //// Loops ////
   function pollForActiveDevices() {
-    sidebarRefresh = window.setInterval(function() { getDevices() }, searchRate);
+    if (!sidebarRefresh) {
+      sidebarRefresh = window.setInterval(function() {
+        getDevices(updateSidebar);
+      }, sidebarRefreshRate);
+    }
   }
+
+  function clearSidebarRefresh() {
+    window.clearInterval(sidebarRefresh);
+    sidebarRefresh = undefined;
+  }
+
+  function connectionLoop(counter) {
+    if (!connected) {
+      getConnectedDevice();
+      setTimeout(function () {
+        if (--counter) {
+          connectionLoop(counter);
+        } else {
+          console.log("connection failed");
+          disconnectFromDevice(); //API disconnect
+          disconnectReset("Connection Failed.  Select another Tag.");
+        }
+      }, 1000)
+    }
+  };
+
+  function getData() {
+    if (!dataRefreshLoop) {
+      dataRefreshLoop = window.setInterval(function() { getSensorData(); }, refreshDataRate);
+    }
+  };
 
   function clearDataRefreshLoop() {
     window.clearInterval(dataRefreshLoop);
     dataRefreshLoop = undefined;
   }
 
-  function clearPollForConnectedDevices() {
-    window.clearInterval(connectedDevicesLoop);
-    connectedDevicesLoop = undefined;
+
+  //// FIREBASE Functions ////
+
+  // Get tagnames and demo tags from Firebase
+  function getTagNames (callback) {
+    tagRef.once("value", function(s) {
+      buildTagObjs(s);
+      if (callback) { callback(); }
+    });
+    tagRef.on("child_changed", function(s) {
+      buildTagObjs(s);
+      if (callback) { callback(); }
+    });
   }
 
-  function clearPollForActiveDevices() {
-    window.clearInterval(sidebarRefresh);
-    connectedDevicesLoop = undefined;
+  // Loops through Firebase data to update
+  // tagNamesById & demoTags variables
+  function buildTagObjs(s) {
+    s.forEach(function(tag) {
+      tagNamesById[tag.key()] = tag.val().name;
+      if (tag.val().funct === "dashboard-demo-tag") {
+        demoTags.push(tag.key());
+        addSidebarListItem($(".demo-tags"), tag.key(), "Tag: " + tag.val().name + " RSSI: N/A");
+      }
+    })
   }
 
-  ////// API Ajax requests //////
+
+  //// Gateway API Ajax requests ////
 
   //request avialable devices
-  function getDevices() {
+  function getDevices(callback) {
     $.ajax({
       url : agentAddress + "/listdevs",
       dataType : "json",
       success : function(response) {
-        if (JSON.stringify(response) != JSON.stringify(devices)) {
-          var activeId = getActiveSidebarId();
-          devices = response;
-          clearActiveDeviceList();
-          updateActiveDeviceList(activeId);
-          if (Object.keys(devices).length > 0) {
-            $(".sidebar h5").removeClass("hidden");
+        //build availableTags
+        for ( var tagId in response) {
+          availableTags[tagId] = {"rssi" : response[tagId], "name" : tagNamesById[tagId]}
+          if (demoTags.indexOf(tagId) >= 0) {
+            availableTags[tagId]["demoTag"] = true;
           } else {
-            $(".sidebar h5").addClass("hidden");
+            availableTags[tagId]["demoTag"] = false;
           }
         }
-        updateCurrentTime($(".devices .time"));
+        if (callback) { callback(); }
       }
     });
   }
 
   //request connected device
-  // returns deviceId or ""
+  //
   function getConnectedDevice() {
     $.ajax({
       url : agentAddress + "/getconnecteddev",
       success : function(response) {
-        checkConnection(response)
+        if (response) {
+          connected = true;
+          loadDashboard(response);
+        }
       }
     });
+    //response is deviceId or ""
   }
 
 
   //connect to a device
+  //checks connection w/ getConnectedDevice
   function connectToDevice(devId) {
     $.ajax({
       url : agentAddress + "/connectto",
       type: "post",
       data: devId,
       success : function(response) {
-        setTimeout(function() { getConnectedDevice(); }, 600);
+        console.log("Connected " + response)
+        console.log("trying to connect...");
+        showDashboardMessage("trying to connect...");
+        //confirm that we made a connection
+        setTimeout(function() { connectionLoop(5); }, 600);
       }
     });
   }
@@ -268,7 +340,8 @@ $(document).ready(function() {
     $.ajax({
       url : agentAddress + "/disconnect",
       success : function(response) {
-        console.log(response);
+        console.log("Disconnected: " + response);
+        connected = false;
       }
     });
   }
@@ -285,7 +358,8 @@ $(document).ready(function() {
             disconnectCounter++;
           } else {
             disconnectCounter = 0;
-            disconnectDevice();
+            disconnectFromDevice(); //API disconnect
+            disconnectReset(defaultDashMsg);
           }
         } else {
           updateDashboard(response);
