@@ -1,60 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="../../favicon.ico">
 
-    <title>Senskit Gateway Dashboard</title>
+  <title>Senskit Gateway Dashboard</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="vendor/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/css/bootstrap.min.css" rel="stylesheet">
+  <!-- c3.css -->
+  <link href="vendor/css/c3.min.css" rel="stylesheet" type="text/css">
+  <!-- Custom styles for this template -->
+  <link href="css/dashboard.css" rel="stylesheet">
+</head>
 
-    <!-- Custom styles for this template -->
-    <link href="css/dashboard.css" rel="stylesheet">
-  </head>
-
-  <body>
-
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a href="#"><img class="navbar-brand" src="img/ei-logo-ide.png"></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <a class="navbar-brand heading" href="#">Sensekit Dashboard</a>
-        </div>
-      </div>
-    </nav>
-
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
-      <div class="row">
-        <!-- SideBar -->
-        <div class="col-sm-3 col-md-2 sidebar devices">
+      <div class="navbar-header">
+        <a href="#"><img class="navbar-brand" src="img/ei-logo-ide.png"></a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <a class="navbar-brand heading" href="#">Sensekit Dashboard</a>
+      </div>
+    </div>
+  </nav>
 
-          <h5>Demo Tags</h5>
-          <ul class="nav nav-sidebar demo-tags">
-          </ul>
-          <h5>Asset Tags</h5>
-          <ul class="nav nav-sidebar asset-tags">
-          </ul>
-          <h6 class="time"></h6>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- SideBar -->
+      <div class="col-sm-3 col-md-2 sidebar devices">
+
+        <h5>Demo Tags</h5>
+        <ul class="nav nav-sidebar demo-tags">
+        </ul>
+        <h5>Asset Tags</h5>
+        <ul class="nav nav-sidebar asset-tags">
+        </ul>
+        <h6 class="time"></h6>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <button type="button" id="disconnect" class="hidden btn">Disconnect</button>
+        <h1 class="page-header">Sensor Data</h1>
+
+        <div class="row dash-msg">
+          <h3>Click on a Tag to see Data!</h3>
         </div>
-        <!-- Dashboard -->
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
-          <button type="button" id="disconnect" class="hidden">Disconnect</button>
-          <div class="row placeholders">
 
-            <h3 class="dash-msg">Click on a Tag to see Data!</h3>
+        <div class="readings hidden">
+          <div class="row widgets">
+            <div class="widget col-xs-6 col-sm-3 temp">
+              <p class="dash-heading1">Temperature</p>
+              <p class="heading-border"><p>
+              <h2>°C</h2>
+              <p class="text-muted time">updated @ 0:00:00 AM</p>
+            </div>
+
+            <div class="widget col-xs-6 col-sm-3 humidity">
+              <p class="dash-heading1">Humidity</p>
+              <p class="heading-border"><p>
+              <div class="gauge" id="humid-gauge"></div>
+            </div>
+
+            <div class="widget col-xs-6 col-sm-3 pressure">
+              <p class="dash-heading1">Pressure</p>
+              <p class="heading-border"><p>
+              <div class="gauge" id="press-gauge"></div>
+            </div>
           </div>
 
-          <div class="readings hidden">
-          <h2 class="sub-header">Sensor Data</h2>
-          <div class="table-responsive">
+          <div class="table-responsive hidden">
             <table class="table table-striped">
               <thead>
                 <tr>
@@ -94,30 +115,35 @@
               </tbody>
             </table>
           </div>
+
           <div class="accel-graph">
-              <h3>Accelerometer Graph</h3>
-              <div class="" id="chart_div" style="width: 100%; height: 500px; margin-bottom: 10%;"></div>
-            </div>
+            <h3>Accelerometer Graph</h3>
+            <div class="" id="chart_div" style="width: 100%; height: 500px; margin-bottom: 10%;"></div>
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="vendor/js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="vendor/js/ie10-viewport-bug-workaround.js"></script>
-    <!-- Flot -->
-    <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.min.js"></script>
-    <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.time.min.js"></script>
-    <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.resize.min.js"></script>
-    <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.selection.min.js"></script>
-    <!-- Firebase -->
-    <script src="https://cdn.firebase.com/js/client/2.0.4/firebase.js"></script>
-    <!-- JavaScript File -->
-    <script type="text/javascript" src="sensekit_dashboard.js"></script>
-  </body>
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="vendor/js/bootstrap.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendor/js/ie10-viewport-bug-workaround.js"></script>
+  <!-- Flot -->
+  <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.min.js"></script>
+  <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.time.min.js"></script>
+  <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.resize.min.js"></script>
+  <script language="javascript" type="text/javascript" src="vendor/js/jquery.flot.selection.min.js"></script>
+<!-- d3.js and c3.js -->
+<script src="vendor/js/d3.min.js" charset="utf-8"> </script>
+<script src="vendor/js/c3.min.js"> </script>
+  <!-- Firebase -->
+  <script src="https://cdn.firebase.com/js/client/2.0.4/firebase.js"></script>
+  <!-- JavaScript File -->
+  <script type="text/javascript" src="sensekit_dashboard.js"></script>
+</body>
 </html>

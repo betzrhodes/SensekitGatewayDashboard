@@ -7,13 +7,13 @@ $(document).ready(function() {
 
   // variables
   var tagNamesById = {};
-  var demoTags = [];
+  var demoTags = []; //array of tag(s) set aside for dashboard demo
   var availableTags = {};
   var sidebarRefresh, dataRefreshLoop;
   var defaultDashMsg = "Click on a Tag to see Data!"
   var disconnectCounter = 0;
   var connectionCounter = 0;
-  var connected = false;
+  var connectedStatus = {"connected" : false, "tagId": ""};
 
   // chart settings
   var accelGraphData = [{label: "x", data:[]}, {label: "y", data:[]}, {label: "z", data:[]}];
@@ -45,6 +45,71 @@ $(document).ready(function() {
     },
   };
 
+  // gage settings
+  var pressGauge = c3.generate({
+    bindto: "#press-gauge",
+    data: {
+      columns: [
+          ['data', 0]
+      ],
+      type: 'gauge',
+    },
+    gauge: {
+      label: {
+        format: function(value, ratio) {
+          return value;
+        },
+      },
+      min: 800,
+      max: 1200,
+      // units: ' %',
+      width: 30
+    },
+    color: {
+      pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
+      threshold: {
+        unit: 'value', // percentage is default
+        max: 1300, // 100 is default
+        values: [850, 950, 1050, 1150]
+      }
+    },
+    interaction: { enabled: false },
+    size: { height: 110 },
+    padding: { bottom: 5 }
+  });
+
+  var humidGauge = c3.generate({
+    bindto: "#humid-gauge",
+    data: {
+      columns: [
+          ['data', 0]
+      ],
+      type: 'gauge',
+    },
+    gauge: {
+      // label: {
+      //   format: function(value, ratio) {
+      //     return value;
+      //   },
+      // },
+      min: 0,
+      max: 100,
+      // units: ' %',
+      width: 30
+    },
+    color: {
+      pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
+      threshold: {
+        unit: 'value', // percentage is default
+        max: 200, // 100 is default
+        values: [30, 60, 90, 100]
+      }
+    },
+    interaction: { enabled: false },
+    size: { height: 110 },
+    padding: { bottom: 5 }
+  });
+
   // listeners
   $(".nav-sidebar").on("click", "li", connect);
   $("#disconnect").on("click", disconnect);
@@ -61,8 +126,6 @@ $(document).ready(function() {
 
   function loadPage() {
     getDevices(updateSidebar);
-    //show instructions or connected tag data
-
     pollForActiveDevices();
   }
 
@@ -75,7 +138,7 @@ $(document).ready(function() {
   function updateDemoTagSidebar() {
     for (var i in demoTags) {
       var id = demoTags[i];
-      var text = "Tag: " + tagNamesById[id] + " RSSI: "
+      var text = tagNamesById[id] + "    |    RSSI: "
       var listItem = $("[data-id="+id+"] a");
 
       if ( id in availableTags ) {
@@ -90,8 +153,8 @@ $(document).ready(function() {
     clearAssetTagSidebar();
     var assetSidebar = $(".asset-tags")
     for (tagId in availableTags) {
-      if (!availableTags[tagId].demoTag && availableTags[tagId].rssi > -85) {
-        var text = "Tag: " + availableTags[tagId].name + " RSSI: " + availableTags[tagId].rssi;
+      if ((!availableTags[tagId].demoTag && availableTags[tagId].rssi > -85) || !availableTags[tagId].demoTag && connectedStatus.tagId === tagId) {
+        var text = availableTags[tagId].name + "    |    RSSI:   " + availableTags[tagId].rssi;
         addSidebarListItem(assetSidebar, tagId, text);
       }
     }
@@ -100,16 +163,19 @@ $(document).ready(function() {
   function connect(e) {
     e.preventDefault();
     var tagId = e.currentTarget.dataset.id;
-    // if (getActiveSidebarId()) {
-    //   clearDataRefreshLoop();
-    //   clearAccGraph();
-    // };
-    connectToDevice(tagId);
+    if (connectedStatus.connected) {
+      connectedStatus = {"connected" : false, "tagId": ""};
+      disconnectReset("");
+      connectToDevice(tagId);
+    } else {
+      connectToDevice(tagId);
+    }
   }
 
   function loadDashboard(tagId) {
     console.log("connected to :" + tagId);
     showDisconnectButton();
+    setSidebarStatusToActive(tagId);
     getData();
     hideDashboardMessage();
   }
@@ -121,7 +187,7 @@ $(document).ready(function() {
   };
 
   function disconnectReset(message) {
-    $(".sidebar .active").removeClass("active");
+    removeSidebarStatusActive();
     hideDisconnectButton();
     clearDataRefreshLoop();
     clearAccGraph();
@@ -144,7 +210,10 @@ $(document).ready(function() {
   }
 
   function addSidebarListItem(list, id, listText) {
-    list.append("<li data-id='" + id + "'><a href='#'>" + listText + "</a></li>")
+    list.append("<li data-id='" + id + "'><a href='#'>" + listText + "</a></li>");
+    if (connectedStatus.connected && connectedStatus.tagId === id) {
+      setSidebarStatusToActive(id);
+    }
   }
 
   function updateSidebarListItem(listItem, listText) {
@@ -153,6 +222,19 @@ $(document).ready(function() {
 
   function updateTimestamp() {
     $(".time").text("Devices Updated at " + getCurrentTime());
+  }
+
+  function setSidebarStatusToActive(tagId) {
+    removeSidebarStatusActive();
+    $("[data-id=" + tagId + "]").addClass("active");
+  }
+
+  function removeSidebarStatusActive() {
+    $(".sidebar .active").removeClass("active");
+  }
+
+  function getActiveSidebarId() {
+    return ($(".sidebar .active").length > 0) ? $(".sidebar .active").data().id : "";
   }
 
   function showDisconnectButton() {
@@ -166,8 +248,25 @@ $(document).ready(function() {
   function updateDashboard(data) {
     console.log(data);
     $(".readings").removeClass("hidden");
-    for (k in data) {
-      $("." + k + " .reading").text(data[k]);
+    for (reading in data) {
+      $("." + reading + " .reading").text(data[reading]);
+      if (reading === "temp") {
+        $(".temp h2").text(data[reading] + " °C")
+      }
+      if (reading === "press") {
+        pressGauge.load({
+          columns: [
+            [ 'data', data[reading] ]
+          ]
+        });
+      }
+      if (reading === "humid") {
+        humidGauge.load({
+          columns: [
+            [ 'data', data[reading] ]
+          ]
+        });
+      }
     }
     graphAccData(data.accel);
   };
@@ -181,9 +280,13 @@ $(document).ready(function() {
     for (var i = 0; i < accelData.length; i++) {
       for (var j = 0; j < accelGraphData.length; j++) {
         accelGraphData[j].data.push([startTime, accelData[i][j]]);
+        if (accelGraphData[j].data.length > 200) {
+          accelGraphData[j].data = accelGraphData[j].data.slice(-200)
+        };
       }
       startTime += 100;
     }
+
     var plot = $.plot("#chart_div", accelGraphData, graphOptions);
     plot.setupGrid();
     plot.draw();
@@ -195,20 +298,20 @@ $(document).ready(function() {
   }
 
   function showDashboardMessage(message) {
-    if (message === "trying to connect..." || message ===defaultDashMsg) {
-      $(".dash-msg").text(message);
+    if (message ==="Trying to Connect . . ." || message === defaultDashMsg || message === "") {
+      $(".dash-msg h3").html(message);
     } else {
-      $(".dash-msg").text(message);
+      $(".dash-msg h3").html(message);
       setTimeout(function() {
-        $(".dash-msg").text(defaultDashMsg);
-      }, 3000);
+        $(".dash-msg h3").html(defaultDashMsg);
+      }, 4000);
     }
     $(".dash-msg").removeClass("hidden");
   }
 
   function hideDashboardMessage() {
     $(".dash-msg").addClass("hidden");
-    $(".dash-msg").text(defaultDashMsg);
+    $(".dash-msg h3").text(defaultDashMsg);
   }
 
 
@@ -227,7 +330,7 @@ $(document).ready(function() {
   }
 
   function connectionLoop(counter) {
-    if (!connected) {
+    if (!connectedStatus.connected) {
       getConnectedDevice();
       setTimeout(function () {
         if (--counter) {
@@ -235,7 +338,7 @@ $(document).ready(function() {
         } else {
           console.log("connection failed");
           disconnectFromDevice(); //API disconnect
-          disconnectReset("Connection Failed.  Select another Tag.");
+          disconnectReset("Connection Failed . . . Select another Tag.");
         }
       }, 1000)
     }
@@ -256,6 +359,7 @@ $(document).ready(function() {
   //// FIREBASE Functions ////
 
   // Get tagnames and demo tags from Firebase
+  // Takes a callback function as a parameter
   function getTagNames (callback) {
     tagRef.once("value", function(s) {
       buildTagObjs(s);
@@ -274,7 +378,7 @@ $(document).ready(function() {
       tagNamesById[tag.key()] = tag.val().name;
       if (tag.val().funct === "dashboard-demo-tag") {
         demoTags.push(tag.key());
-        addSidebarListItem($(".demo-tags"), tag.key(), "Tag: " + tag.val().name + " RSSI: N/A");
+        addSidebarListItem($(".demo-tags"), tag.key(), tag.val().name + "    |    RSSI: N/A");
       }
     })
   }
@@ -282,7 +386,9 @@ $(document).ready(function() {
 
   //// Gateway API Ajax requests ////
 
-  //request avialable devices
+  //requests a list of devices that are currently in range.
+  //stores response in availableTags object
+  //takes a callback as a parameter.
   function getDevices(callback) {
     $.ajax({
       url : agentAddress + "/listdevs",
@@ -302,14 +408,15 @@ $(document).ready(function() {
     });
   }
 
-  //request connected device
-  // returns deviceId or ""
+  //requests connected device
+  //response is either deviceId or ""
+  //if device is connected will loadDashboard
   function getConnectedDevice() {
     $.ajax({
       url : agentAddress + "/getconnecteddev",
       success : function(response) {
         if (response) {
-          connected = true;
+          connectedStatus = {"connected" : true, "tagId" : response };
           loadDashboard(response);
         }
       }
@@ -328,7 +435,7 @@ $(document).ready(function() {
       success : function(response) {
         console.log("Connected " + response)
         console.log("trying to connect...");
-        showDashboardMessage("trying to connect...");
+        showDashboardMessage("Trying to Connect . . .");
         //confirm that we made a connection
         setTimeout(function() { connectionLoop(5); }, 600);
       }
@@ -341,7 +448,7 @@ $(document).ready(function() {
       url : agentAddress + "/disconnect",
       success : function(response) {
         console.log("Disconnected: " + response);
-        connected = false;
+        connectedStatus = {"connected" : false, "tagId": ""};
       }
     });
   }
@@ -359,7 +466,7 @@ $(document).ready(function() {
           } else {
             disconnectCounter = 0;
             disconnectFromDevice(); //API disconnect
-            disconnectReset(defaultDashMsg);
+            disconnectReset("Device not Responding . . . Disconnected from Device.");
           }
         } else {
           updateDashboard(response);
