@@ -48,10 +48,9 @@ $(document).ready(function() {
   // gage settings
   var pressGauge = c3.generate({
     bindto: "#press-gauge",
+    transition: { duration: 0 },
     data: {
-      columns: [
-          ['data', 0]
-      ],
+      columns: [ ['data', 0] ],
       type: 'gauge',
     },
     gauge: {
@@ -62,8 +61,6 @@ $(document).ready(function() {
       },
       min: 800,
       max: 1200,
-      // units: ' %',
-      width: 30
     },
     color: {
       pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
@@ -80,22 +77,14 @@ $(document).ready(function() {
 
   var humidGauge = c3.generate({
     bindto: "#humid-gauge",
+    transition: { duration: 0 },
     data: {
-      columns: [
-          ['data', 0]
-      ],
+      columns: [ ['data', 0] ],
       type: 'gauge',
     },
     gauge: {
-      // label: {
-      //   format: function(value, ratio) {
-      //     return value;
-      //   },
-      // },
       min: 0,
       max: 100,
-      // units: ' %',
-      width: 30
     },
     color: {
       pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
@@ -221,7 +210,7 @@ $(document).ready(function() {
   }
 
   function updateTimestamp() {
-    $(".time").text("Devices Updated at " + getCurrentTime());
+    $(".sidebar .time").text("Devices Updated at " + getCurrentTime());
   }
 
   function setSidebarStatusToActive(tagId) {
@@ -246,12 +235,13 @@ $(document).ready(function() {
   };
 
   function updateDashboard(data) {
-    console.log(data);
+    // console.log(data);
     $(".readings").removeClass("hidden");
     for (reading in data) {
       $("." + reading + " .reading").text(data[reading]);
       if (reading === "temp") {
         $(".temp h2").text(data[reading] + " °C")
+        $(".widget .time").text("updated @ " + new Date().toLocaleTimeString())
       }
       if (reading === "press") {
         pressGauge.load({
@@ -266,6 +256,11 @@ $(document).ready(function() {
             [ 'data', data[reading] ]
           ]
         });
+      }
+      if (reading === "mag") {
+        for (i in reading) {
+          $("." + reading + "-" + i).text(data[reading][i]);
+        }
       }
     }
     graphAccData(data.accel);
