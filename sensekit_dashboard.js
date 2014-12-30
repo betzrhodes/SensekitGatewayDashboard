@@ -241,7 +241,6 @@ $(document).ready(function() {
       $("." + reading + " .reading").text(data[reading]);
       if (reading === "temp") {
         $(".temp h2").text(data[reading] + " °C")
-        $(".widget .time").text("updated @ " + new Date().toLocaleTimeString())
       }
       if (reading === "press") {
         pressGauge.load({
@@ -432,7 +431,7 @@ $(document).ready(function() {
         console.log("trying to connect...");
         showDashboardMessage("Trying to Connect . . .");
         //confirm that we made a connection
-        setTimeout(function() { connectionLoop(5); }, 600);
+        setTimeout(function() { connectionLoop(7); }, 600);
       }
     });
   }
