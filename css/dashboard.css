@@ -258,15 +258,15 @@ a:hover, a:focus {
 
 .negative {
   /*background-color: #004EF5;*/
-  background-color: rgba(0, 78, 245, 0.7);
+  background-color: rgba(0, 78, 245, 0.9);
 }
 
 .positive {
   /*background-color: #FF0000;*/
- background-color: rgba(255, 0, 0, 0.7);
+ background-color: rgba(255, 0, 0, 0.9);
 }
 
 .zero {
   /*background-color: #60B044;*/
-  background-color: rgba(96, 176, 68, 0.7);
+  background-color: rgba(96, 176, 68, 0.9);
 }

@@ -259,18 +259,30 @@ $(document).ready(function() {
       if (reading === "mag") {
         for (i in reading) {
           $("." + reading + "-" + i + " p").text(data[reading][i]);
+          var cl = "zero";
+          var mag = $("." + reading + "-" + i);
           if (data[reading][i] > 0) {
-            $("." + reading + "-" + i).addClass("positive")
+            cl = "positive";
           } else if (data[reading][i] < 0) {
-            $("." + reading + "-" + i).addClass("negative")
-          } else {
-            $("." + reading + "-" + i).addClass("zero")
+            cl = "negative";
           }
+          removeMagColorClasses(mag);
+          addMagColorClass(mag, cl);
         }
       }
     }
     graphAccData(data.accel);
   };
+
+  function removeMagColorClasses(mag) {
+    mag.removeClass("negative");
+    mag.removeClass("zero")
+    mag.removeClass("positive");
+  }
+
+  function addMagColorClass(mag, cl) {
+    mag.addClass(cl);
+  }
 
   function hideDashboard() {
     $(".readings").addClass("hidden");
