@@ -258,7 +258,14 @@ $(document).ready(function() {
       }
       if (reading === "mag") {
         for (i in reading) {
-          $("." + reading + "-" + i).text(data[reading][i]);
+          $("." + reading + "-" + i + " p").text(data[reading][i]);
+          if (data[reading][i] > 0) {
+            $("." + reading + "-" + i).addClass("positive")
+          } else if (data[reading][i] < 0) {
+            $("." + reading + "-" + i).addClass("negative")
+          } else {
+            $("." + reading + "-" + i).addClass("zero")
+          }
         }
       }
     }

@@ -219,18 +219,54 @@ a:hover, a:focus {
   font-size: 22px !important;
 }
 
-.mag svg {
+/*.mag svg {
   width: 100%;
   height: 110px;
-/*  border: 1px solid red;*/
-}
+}*/
 
 .page-header {
   border-bottom: 1px solid #DBDBDB;
 }
 
-#disconnect {
+.btn {
   color: #DBDBDB;
   background-color: transparent;
   border: 1px solid #CCCCCC;
+}
+
+.btn:hover {
+  color: #206118;
+  background-color: #C5C9C3;
+  border: 1px solid #206118;
+}
+
+.mag-gauge {
+  text-align: center;
+  margin: 3% 10%;
+  border: 1px solid #E1E8DF;
+}
+
+.mag-gauge p {
+  font-size: 18px;
+  margin: auto;
+  color: #E1E8DF;
+}
+
+.gauge {
+  margin-top: 6.5%;
+}
+
+.negative {
+  /*background-color: #004EF5;*/
+  background-color: rgba(0, 78, 245, 0.7);
+}
+
+.positive {
+  /*background-color: #FF0000;*/
+ background-color: rgba(255, 0, 0, 0.7);
+}
+
+.zero {
+  /*background-color: #60B044;*/
+  background-color: rgba(96, 176, 68, 0.7);
 }
