@@ -55,23 +55,40 @@
 
         <div class="readings hidden">
           <div class="row widgets">
-            <div class="widget col-xs-6 col-sm-3 temp">
-              <p class="dash-heading1">Temperature</p>
-              <p class="heading-border"><p>
-              <h2>°C</h2>
-              <p class="text-muted time">updated @ 0:00:00 AM</p>
+            <div class="col-xs-6 col-sm-3 temp">
+              <div class="widget">
+                <p class="dash-heading1">Temperature</p>
+                <p class="heading-border"><p>
+                <h2>°C</h2>
+              </div>
             </div>
 
-            <div class="widget col-xs-6 col-sm-3 humidity">
-              <p class="dash-heading1">Humidity</p>
-              <p class="heading-border"><p>
-              <div class="gauge" id="humid-gauge"></div>
+            <div class="col-xs-6 col-sm-3 humidity">
+              <div class="widget">
+                <p class="dash-heading1">Humidity</p>
+                <p class="heading-border"><p>
+                <div class="gauge" id="humid-gauge"></div>
+              </div>
             </div>
 
-            <div class="widget col-xs-6 col-sm-3 pressure">
-              <p class="dash-heading1">Pressure</p>
-              <p class="heading-border"><p>
-              <div class="gauge" id="press-gauge"></div>
+            <div class="col-xs-6 col-sm-3 pressure">
+              <div class="widget">
+                <p class="dash-heading1">Pressure</p>
+                <p class="heading-border"><p>
+                <div class="gauge" id="press-gauge"></div>
+              </div>
+            </div>
+
+            <div class="col-xs-6 col-sm-3 mag">
+              <div class="widget">
+                <p class="dash-heading1">Magnetometer</p>
+                <p class="heading-border"><p>
+                <div class="gauge">
+                  <div class='mag-gauge mag-0'><p></p></div>
+                  <div class='mag-gauge mag-1'><p></p></div>
+                  <div class='mag-gauge mag-2'><p></p></div>
+                </div>
+              </div>
             </div>
           </div>
 

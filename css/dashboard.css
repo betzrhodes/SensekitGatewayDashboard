@@ -10,7 +10,7 @@ body {
 
 
 h1, h2, h3, h4, h5, h6, p {
-  color:#D9E0D5;
+  color:#DBDBDB;
 }
 
 a {
@@ -154,8 +154,8 @@ a:hover, a:focus {
 }
 
 .widgets h2 {
-  margin: 5%;
-  font-size: 4.5em;
+  margin: 12% 5%;
+  font-size: 3.8em;
   color: #E1E8DF;
   text-align: center;
 }
@@ -164,8 +164,8 @@ a:hover, a:focus {
   background-color: transparent;
   border: 1px solid #BFC2BE;
   margin: 1.5%;
-  width: 22%;
-  height: 150px;
+  width: 97%;
+  height: 170px;
   padding: 0.5% 0;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(35, 35, 35, .7);
@@ -192,7 +192,8 @@ a:hover, a:focus {
 .dash-heading1 {
   font-size: 1.2em;
   color: #9CA199;
-  padding-left: 5%;
+  padding: 3% 5%;
+  /*padding-left: 5%;*/
   margin-bottom: 0;
 }
 
@@ -206,7 +207,7 @@ a:hover, a:focus {
 }
 
 .sidebar h5 {
-  border-bottom: 1px solid #D9E0D5;
+  border-bottom: 1px solid #DBDBDB;
 }
 
 .gauge {
@@ -215,5 +216,57 @@ a:hover, a:focus {
 
 .c3-chart-arc .c3-gauge-value {
   fill: #E1E8DF;
-  font-size: 24px !important;
+  font-size: 22px !important;
+}
+
+/*.mag svg {
+  width: 100%;
+  height: 110px;
+}*/
+
+.page-header {
+  border-bottom: 1px solid #DBDBDB;
+}
+
+.btn {
+  color: #DBDBDB;
+  background-color: transparent;
+  border: 1px solid #CCCCCC;
+}
+
+.btn:hover {
+  color: #206118;
+  background-color: #C5C9C3;
+  border: 1px solid #206118;
+}
+
+.mag-gauge {
+  text-align: center;
+  margin: 3% 10%;
+  border: 1px solid #E1E8DF;
+}
+
+.mag-gauge p {
+  font-size: 18px;
+  margin: auto;
+  color: #E1E8DF;
+}
+
+.gauge {
+  margin-top: 6.5%;
+}
+
+.negative {
+  /*background-color: #004EF5;*/
+  background-color: rgba(0, 78, 245, 0.9);
+}
+
+.positive {
+  /*background-color: #FF0000;*/
+ background-color: rgba(255, 0, 0, 0.9);
+}
+
+.zero {
+  /*background-color: #60B044;*/
+  background-color: rgba(96, 176, 68, 0.9);
 }

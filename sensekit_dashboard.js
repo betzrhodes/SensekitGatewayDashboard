@@ -48,10 +48,9 @@ $(document).ready(function() {
   // gage settings
   var pressGauge = c3.generate({
     bindto: "#press-gauge",
+    transition: { duration: 0 },
     data: {
-      columns: [
-          ['data', 0]
-      ],
+      columns: [ ['data', 0] ],
       type: 'gauge',
     },
     gauge: {
@@ -62,8 +61,6 @@ $(document).ready(function() {
       },
       min: 800,
       max: 1200,
-      // units: ' %',
-      width: 30
     },
     color: {
       pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
@@ -80,22 +77,14 @@ $(document).ready(function() {
 
   var humidGauge = c3.generate({
     bindto: "#humid-gauge",
+    transition: { duration: 0 },
     data: {
-      columns: [
-          ['data', 0]
-      ],
+      columns: [ ['data', 0] ],
       type: 'gauge',
     },
     gauge: {
-      // label: {
-      //   format: function(value, ratio) {
-      //     return value;
-      //   },
-      // },
       min: 0,
       max: 100,
-      // units: ' %',
-      width: 30
     },
     color: {
       pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
@@ -221,7 +210,7 @@ $(document).ready(function() {
   }
 
   function updateTimestamp() {
-    $(".time").text("Devices Updated at " + getCurrentTime());
+    $(".sidebar .time").text("Devices Updated at " + getCurrentTime());
   }
 
   function setSidebarStatusToActive(tagId) {
@@ -246,7 +235,7 @@ $(document).ready(function() {
   };
 
   function updateDashboard(data) {
-    console.log(data);
+    // console.log(data);
     $(".readings").removeClass("hidden");
     for (reading in data) {
       $("." + reading + " .reading").text(data[reading]);
@@ -267,9 +256,33 @@ $(document).ready(function() {
           ]
         });
       }
+      if (reading === "mag") {
+        for (i in reading) {
+          $("." + reading + "-" + i + " p").text(data[reading][i]);
+          var cl = "zero";
+          var mag = $("." + reading + "-" + i);
+          if (data[reading][i] > 0) {
+            cl = "positive";
+          } else if (data[reading][i] < 0) {
+            cl = "negative";
+          }
+          removeMagColorClasses(mag);
+          addMagColorClass(mag, cl);
+        }
+      }
     }
     graphAccData(data.accel);
   };
+
+  function removeMagColorClasses(mag) {
+    mag.removeClass("negative");
+    mag.removeClass("zero")
+    mag.removeClass("positive");
+  }
+
+  function addMagColorClass(mag, cl) {
+    mag.addClass(cl);
+  }
 
   function hideDashboard() {
     $(".readings").addClass("hidden");
@@ -437,7 +450,7 @@ $(document).ready(function() {
         console.log("trying to connect...");
         showDashboardMessage("Trying to Connect . . .");
         //confirm that we made a connection
-        setTimeout(function() { connectionLoop(5); }, 600);
+        setTimeout(function() { connectionLoop(7); }, 600);
       }
     });
   }
@@ -461,7 +474,7 @@ $(document).ready(function() {
       success : function(response) {
         if(response.humid === null && response.temp === null && response.press === null && response.batt === null && response.mag.length === 0 && response.gyro.length === 0 && response.accel.length === 0) {
           console.log("null data")
-          if (disconnectCounter < 4) {
+          if (disconnectCounter < 9) {
             disconnectCounter++;
           } else {
             disconnectCounter = 0;
