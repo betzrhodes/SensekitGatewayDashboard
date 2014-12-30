@@ -474,7 +474,7 @@ $(document).ready(function() {
       success : function(response) {
         if(response.humid === null && response.temp === null && response.press === null && response.batt === null && response.mag.length === 0 && response.gyro.length === 0 && response.accel.length === 0) {
           console.log("null data")
-          if (disconnectCounter < 4) {
+          if (disconnectCounter < 9) {
             disconnectCounter++;
           } else {
             disconnectCounter = 0;
