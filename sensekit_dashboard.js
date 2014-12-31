@@ -43,6 +43,7 @@ $(document).ready(function() {
       backgroundOpacity: 0.2,
       margin: 10
     },
+    colors: ["#004EF5", "#F6C600", "#DB0000"],
   };
 
   // gage settings
@@ -63,7 +64,7 @@ $(document).ready(function() {
       max: 1200,
     },
     color: {
-      pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
+      pattern: ['#EB0000', '#F97600', '#F6C600', '#26A816'], // the three color levels for the percentage values.
       threshold: {
         unit: 'value', // percentage is default
         max: 1300, // 100 is default
@@ -87,7 +88,7 @@ $(document).ready(function() {
       max: 100,
     },
     color: {
-      pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'], // the three color levels for the percentage values.
+      pattern: ['#EB0000', '#F97600', '#F6C600', '#26A816'], // the three color levels for the percentage values.
       threshold: {
         unit: 'value', // percentage is default
         max: 200, // 100 is default
@@ -180,7 +181,6 @@ $(document).ready(function() {
     hideDisconnectButton();
     clearDataRefreshLoop();
     clearAccGraph();
-    hideDashboard();
     showDashboardMessage(message);
   }
 
@@ -312,6 +312,7 @@ $(document).ready(function() {
 
   function showDashboardMessage(message) {
     clearTimeout(msgTimer);
+    hideDashboard();
     if (message ==="Trying to Connect . . ." || message === defaultDashMsg || message === "") {
       $(".dash-msg h3").html(message);
     } else {
@@ -409,7 +410,7 @@ $(document).ready(function() {
       dataType : "json",
       success : function(response) {
         //build availableTags
-        if (response.length === 0) {
+        if (Object.keys(response).length === 0) {
           availableTags = {};
         } else {
           for ( var tagId in response) {
@@ -451,7 +452,7 @@ $(document).ready(function() {
       type: "post",
       data: devId,
       success : function(response) {
-        console.log("Connected " + response)
+        console.log("Connected server response " + response)
         console.log("trying to connect...");
         showDashboardMessage("Trying to Connect . . .");
         //confirm that we made a connection
@@ -481,7 +482,7 @@ $(document).ready(function() {
           console.log("null data")
           if (disconnectCounter < 5) {
             disconnectCounter++;
-            showDashboardMessage("Device Reporting No Data");
+            showDashboardMessage("Device not Responding");
           } else {
             disconnectCounter = 0;
             disconnectFromDevice(); //API disconnect
