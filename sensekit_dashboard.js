@@ -75,7 +75,6 @@ $(document).ready(function() {
     size: { height: 110 },
     padding: { bottom: 5 }
   });
-
   var humidGauge = c3.generate({
     bindto: "#humid-gauge",
     transition: { duration: 0 },
@@ -103,6 +102,11 @@ $(document).ready(function() {
   // listeners
   $(".nav-sidebar").on("click", "li", connect);
   $("#disconnect").on("click", disconnect);
+  window.onresize = function() {
+    setWidgetHeight();
+    adjustSidebarFont();
+  }
+
 
   // Runtime(on page load)
   getTagNames(loadPage);
@@ -137,6 +141,7 @@ $(document).ready(function() {
         updateSidebarListItem(listItem, text + "N/A");
       }
     }
+    adjustSidebarFont();
   }
 
   function updateAssetTagSidebar() {
@@ -148,6 +153,7 @@ $(document).ready(function() {
         addSidebarListItem(assetSidebar, tagId, text);
       }
     }
+    adjustSidebarFont();
   }
 
   function connect(e) {
@@ -271,6 +277,7 @@ $(document).ready(function() {
         }
       }
     }
+    setWidgetHeight();
     graphAccData(data.accel);
   };
 
@@ -329,6 +336,21 @@ $(document).ready(function() {
     $(".dash-msg h3").text(defaultDashMsg);
   }
 
+  function setWidgetHeight() {
+    var widgetHeight = $(".humidity .widget").height();
+    $(".temp .widget").height(widgetHeight);
+    $(".mag .widget").height(widgetHeight);
+  }
+
+  function adjustSidebarFont() {
+    $(".nav-sidebar a").each(function() {
+      $(this).css("font-size", "12px");
+      while ($(this).height() > 20) {
+        var cfs = parseInt($(this).css("font-size"));
+        $(this).css("font-size", cfs - 2 + "px");
+      }
+    });
+  }
 
   //// Loops ////
   function pollForActiveDevices() {

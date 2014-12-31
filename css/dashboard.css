@@ -93,6 +93,7 @@ a:hover, a:focus {
 }
 
 .nav-sidebar > li > a {
+  font-size: 12px;
   margin: 10px 20px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -154,10 +155,28 @@ a:hover, a:focus {
 }
 
 .widgets h2 {
-  margin: 12% 5%;
-  font-size: 3.8em;
+  margin-top: 15%;
+  font-size: 2.5em;
   color: #E1E8DF;
   text-align: center;
+}
+@media (min-width: 1010px) {
+  .widgets h2 {
+  margin-top: 20%;
+  font-size: 3em;
+  }
+}
+@media (min-width: 1300px) {
+  .widgets h2 {
+    margin-top: 15%;
+    font-size: 3.6em;
+  }
+}
+@media (min-width: 1600px) {
+  .widgets h2 {
+    margin-top: 10%;
+    font-size: 3.8em;
+  }
 }
 
 .widget {
@@ -165,7 +184,7 @@ a:hover, a:focus {
   border: 1px solid #BFC2BE;
   margin: 1.5%;
   width: 97%;
-  height: 170px;
+/*  height: 170px;*/
   padding: 0.5% 0;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(35, 35, 35, .7);
@@ -203,19 +222,10 @@ a:hover, a:focus {
   border-bottom: 1px solid #DBDBDB;
 }
 
-.gauge {
-/*  border: 1px solid red;*/
-}
-
 .c3-chart-arc .c3-gauge-value {
   fill: #E1E8DF;
   font-size: 22px !important;
 }
-
-/*.mag svg {
-  width: 100%;
-  height: 110px;
-}*/
 
 .page-header {
   border-bottom: 1px solid #DBDBDB;
@@ -236,7 +246,7 @@ a:hover, a:focus {
 
 .mag-gauge {
   text-align: center;
-  margin: 3% 10%;
+  margin: 3.3% 10%;
   border: 1px solid #E1E8DF;
 }
 
@@ -247,7 +257,7 @@ a:hover, a:focus {
 }
 
 .gauge {
-  margin-top: 6.5%;
+  margin-top: 7%;
 }
 
 .negative {
