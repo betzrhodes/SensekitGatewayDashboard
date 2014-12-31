@@ -182,16 +182,9 @@ a:hover, a:focus {
   text-align: center;
 }
 
-.dash-heading2 {
-  font-size: 0.8em;
-  color: #B7BFB2;
-  padding-left: 5%;
-  margin-top: 0;
-}
-
 .dash-heading1 {
   font-size: 1.2em;
-  color: #9CA199;
+  color: #B7BFB2;
   padding: 3% 5%;
   /*padding-left: 5%;*/
   margin-bottom: 0;
@@ -235,9 +228,10 @@ a:hover, a:focus {
 }
 
 .btn:hover {
-  color: #206118;
-  background-color: #C5C9C3;
-  border: 1px solid #206118;
+  /*color: #206118;*/
+  color: #DBDBDB;
+  background-color: #5C5C5C;
+  border: 1px solid #B7BFB2;
 }
 
 .mag-gauge {
@@ -257,16 +251,16 @@ a:hover, a:focus {
 }
 
 .negative {
-  /*background-color: #004EF5;*/
-  background-color: rgba(0, 78, 245, 0.9);
+  background-color: #004EF5;
+  /*background-color: rgba(0, 78, 245, 0.9);*/
 }
 
 .positive {
-  /*background-color: #FF0000;*/
- background-color: rgba(255, 0, 0, 0.9);
+  background-color: #DB0000;
+ /*background-color: rgba(204, 0, 0, 0.9);*/
 }
 
 .zero {
-  /*background-color: #60B044;*/
-  background-color: rgba(96, 176, 68, 0.9);
+  background-color: #26A816;
+  /*background-color: rgba(38, 168, 22, 0.9);*/
 }
