@@ -145,12 +145,19 @@ $(document).ready(function() {
   }
 
   function updateAssetTagSidebar() {
-    clearAssetTagSidebar();
-    var assetSidebar = $(".asset-tags")
+    var assetSidebar = $(".asset-tags");
     for (tagId in availableTags) {
+      var text = availableTags[tagId].name + "    |    RSSI:   " + availableTags[tagId].rssi;
+      var listItem = $("[data-id="+tagId+"] a");
+
       if ((!availableTags[tagId].demoTag && availableTags[tagId].rssi > -85) || !availableTags[tagId].demoTag && connectedStatus.tagId === tagId) {
-        var text = availableTags[tagId].name + "    |    RSSI:   " + availableTags[tagId].rssi;
-        addSidebarListItem(assetSidebar, tagId, text);
+        if (listItem.length > 0) {
+          updateSidebarListItem(listItem, text);
+        } else {
+          addSidebarListItem(assetSidebar, tagId, text);
+        }
+      } else if (!availableTags[tagId].demoTag) {
+        deleteSidebarListItem(listItem);
       }
     }
     adjustSidebarFont();
@@ -202,6 +209,10 @@ $(document).ready(function() {
 
   function clearAssetTagSidebar() {
     $(".asset-tags").html("");
+  }
+
+  function deleteSidebarListItem(listItem) {
+    listItem.parent().html("");
   }
 
   function addSidebarListItem(list, id, listText) {
@@ -345,7 +356,7 @@ $(document).ready(function() {
   function adjustSidebarFont() {
     $(".nav-sidebar a").each(function() {
       $(this).css("font-size", "12px");
-      while ($(this).height() > 20) {
+      while ($(this).height() > 18) {
         var cfs = parseInt($(this).css("font-size"));
         $(this).css("font-size", cfs - 2 + "px");
       }
