@@ -55,8 +55,18 @@ a:hover, a:focus {
   color: #DBDBDB;
 }
 
+.navbar-inverse .navbar-nav>li>a {
+  color: #DBDBDB;
+}
+
+.navbar-inverse .navbar-nav>li>a:hover, .navbar-inverse .navbar-nav>li>a:focus {
+  color: #EBEBEB;
+  border: 0px solid #000;
+}
+
 #navbar .navbar-brand {
-  width: 80%;
+  position: absolute;
+  width: 82%;
   text-align: center;
   margin: 0 auto;
 }
