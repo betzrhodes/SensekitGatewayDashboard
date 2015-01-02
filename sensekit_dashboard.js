@@ -105,17 +105,30 @@ $(document).ready(function() {
   window.onresize = function() {
     setWidgetHeight();
     adjustSidebarFont();
+    adjustWidgetHeight();
   }
 
 
   // Runtime(on page load)
   getTagNames(loadPage);
   checkConnectionStatus();
+  adjustWidgetHeight();
 
 
   ////// Page Functions //////
   function checkConnectionStatus() {
     getConnectedDevice();
+  }
+
+  function adjustWidgetHeight() {
+    console.log($(window).height())
+    if ($(window).height() < 975) {
+      humidGauge.resize({ height: 95 });
+      pressGauge.resize({ height: 95 });
+    } else {
+      humidGauge.resize({ height: 110 });
+      pressGauge.resize({ height: 110 });
+    }
   }
 
   function loadPage() {
