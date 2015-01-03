@@ -163,16 +163,17 @@ $(document).ready(function() {
       var text = availableTags[tagId].name + "    |    RSSI:   " + availableTags[tagId].rssi;
       var listItem = $("[data-id="+tagId+"] a");
 
-      if ((!availableTags[tagId].demoTag && availableTags[tagId].rssi > -85) || !availableTags[tagId].demoTag && connectedStatus.tagId === tagId) {
-        if (listItem.length > 0) {
-          updateSidebarListItem(listItem, text);
+      if (!availableTags[tagId].demoTag) {
+        if (availableTags[tagId].rssi > -85 || connectedStatus.tagId === tagId) {
+          if (listItem.length > 0) {
+            updateSidebarListItem(listItem, text);
+          } else {
+            addSidebarListItem(assetSidebar, tagId, text);
+          }
         } else {
-          addSidebarListItem(assetSidebar, tagId, text);
+          deleteSidebarListItem(listItem);
         }
-      } else if (!availableTags[tagId].demoTag) {
-        deleteSidebarListItem(listItem);
       }
-    }
     adjustSidebarFont();
   }
 
@@ -486,7 +487,6 @@ $(document).ready(function() {
         }
       }
     });
-    //response is deviceId or ""
   }
 
 
