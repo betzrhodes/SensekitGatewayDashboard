@@ -502,7 +502,7 @@ $(document).ready(function() {
         console.log("trying to connect...");
         showDashboardMessage("Trying to Connect . . .");
         //confirm that we made a connection
-        setTimeout(function() { connectionLoop(7); }, 600);
+        setTimeout(function() { connectionLoop(17); }, 600);
       }
     });
   }
