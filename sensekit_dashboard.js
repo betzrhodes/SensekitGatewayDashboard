@@ -175,6 +175,7 @@ $(document).ready(function() {
         }
       }
     adjustSidebarFont();
+    }
   }
 
   function connect(e) {
@@ -201,7 +202,7 @@ $(document).ready(function() {
     e.preventDefault();
     disconnectFromDevice(); //API disconnect
     disconnectReset(defaultDashMsg);
-  };
+  }
 
   function disconnectReset(message) {
     removeSidebarStatusActive();
@@ -259,11 +260,11 @@ $(document).ready(function() {
 
   function showDisconnectButton() {
     $("#disconnect").removeClass("hidden");
-  };
+  }
 
   function hideDisconnectButton() {
     $("#disconnect").addClass("hidden");
-  };
+  }
 
   function updateDashboard(data) {
     // console.log(data);
@@ -304,7 +305,7 @@ $(document).ready(function() {
     }
     setWidgetHeight();
     graphAccData(data.accel);
-  };
+  }
 
   function removeMagColorClasses(mag) {
     mag.removeClass("negative");
@@ -335,7 +336,7 @@ $(document).ready(function() {
     var plot = $.plot("#chart_div", accelGraphData, graphOptions);
     plot.setupGrid();
     plot.draw();
-  };
+  }
 
   function clearAccGraph() {
     $("#chart_div").html("");
@@ -404,13 +405,13 @@ $(document).ready(function() {
         }
       }, 1000)
     }
-  };
+  }
 
   function getData() {
     if (!dataRefreshLoop) {
       dataRefreshLoop = window.setInterval(function() { getSensorData(); }, refreshDataRate);
     }
-  };
+  }
 
   function clearDataRefreshLoop() {
     window.clearInterval(dataRefreshLoop);
@@ -489,7 +490,6 @@ $(document).ready(function() {
     });
   }
 
-
   //connect to a device
   //checks connection w/ getConnectedDevice
   function connectToDevice(devId) {
@@ -544,4 +544,5 @@ $(document).ready(function() {
       }
     });
   }
+
 })
